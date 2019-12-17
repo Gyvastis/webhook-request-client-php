@@ -16,7 +16,7 @@ $connection = new AMQPStreamConnection(
     $_ENV['RABBITMQ_PORT'],
     $_ENV['RABBITMQ_USERNAME'],
     $_ENV['RABBITMQ_PASSWORD'],
-    $_ENV['RABBITMQ_VHOST'],
+    $_ENV['RABBITMQ_VHOST']
 );
 $channel = $connection->channel();
 
