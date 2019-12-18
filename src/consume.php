@@ -30,10 +30,14 @@ $channel->basic_consume($queue, 'xxxx', false, false, false, false, function($ms
     $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
 });
 
+function shutdown($channel, $connection)
+{
+    $channel->close();
+    $connection->close();
+}
+register_shutdown_function('shutdown', $channel, $connection);
+
 while ($channel ->is_consuming()) {
     var_dump('Consuming...');
     $channel->wait();
 }
-
-$channel->close();
-$connection->close();
