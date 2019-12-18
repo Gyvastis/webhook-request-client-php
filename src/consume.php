@@ -10,6 +10,7 @@ use PhpAmqpLib\Exchange\AMQPExchangeType;
 $exchange = 'webhook';
 $queue = 'webhook_response';
 $routingKey = 'response';
+$prefetchCount = 10;
 
 $connection = new AMQPStreamConnection(
     $_ENV['RABBITMQ_HOST'],
@@ -19,7 +20,7 @@ $connection = new AMQPStreamConnection(
     $_ENV['RABBITMQ_VHOST']
 );
 $channel = $connection->channel();
-
+$channel->basic_qos(null, $prefetchCount, null);
 $channel->queue_declare($queue, false, true, false, false);
 $channel->exchange_declare($exchange, AMQPExchangeType::DIRECT, false, true, false);
 $channel->queue_bind($queue, $exchange, $routingKey);
