@@ -10,6 +10,7 @@ use PhpAmqpLib\Message\AMQPMessage;
 
 $exchange = 'webhook';
 $queue = 'webhook_request';
+$routingKey = 'request';
 
 $connection = new AMQPStreamConnection(
     $_ENV['RABBITMQ_HOST'],
@@ -22,7 +23,7 @@ $channel = $connection->channel();
 
 $channel->queue_declare($queue, false, true, false, false);
 $channel->exchange_declare($exchange, AMQPExchangeType::DIRECT, false, true, false);
-$channel->queue_bind($queue, $exchange);
+$channel->queue_bind($queue, $exchange, $routingKey);
 
 $messageBody = \json_encode([
     'request' => [
@@ -38,14 +39,18 @@ $messageBody = \json_encode([
         'headers' => [],
         'body' => [],
         'query' => [],
+    ],
+    'requeue' => [
+        'routingKey' => 'response',
     ]
 ]);
+
 $message = new AMQPMessage($messageBody, [
     'content_type' => 'text/plain',
     'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT
 ]);
 
-$channel->basic_publish($message, $exchange);
+$channel->basic_publish($message, $exchange, $routingKey);
 
 $channel->close();
 $connection->close();
